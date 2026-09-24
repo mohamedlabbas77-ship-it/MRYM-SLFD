@@ -11,9 +11,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -23,7 +21,6 @@
       overflow-x: hidden;
     }
 
-    /* Glassmorphism Ultra Doux */
     .glass {
       background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(20px);
@@ -33,7 +30,7 @@
 
     .glass-card {
       background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
@@ -51,14 +48,10 @@
       100% { opacity: 0; transform: translateY(-160px) scale(1.5) rotate(-15deg); }
     }
 
-    /* Scrollbar invisible & fluide pour Mobile */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Typing Dots Animation */
-    .typing-dot {
-      animation: typing 1.4s infinite ease-in-out;
-    }
+    .typing-dot { animation: typing 1.4s infinite ease-in-out; }
     .typing-dot:nth-child(1) { animation-delay: 0s; }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
@@ -68,10 +61,7 @@
       50% { transform: translateY(-4px); opacity: 1; }
     }
 
-    /* Reaction Pop Animation */
-    .react-pop {
-      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
+    .react-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     @keyframes popIn {
       0% { transform: scale(0); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
@@ -89,7 +79,7 @@
     <div id="userBadge" class="hidden text-xs font-semibold px-3.5 py-1.5 rounded-full glass border border-white/15 text-pink-200"></div>
   </header>
 
-  <!-- Login Modal (Mode Test Mobile-Optimized) -->
+  <!-- Login Modal -->
   <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/85 backdrop-blur-xl">
     <div class="glass-card p-7 rounded-3xl max-w-sm w-full text-center shadow-2xl border border-white/15">
       <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-pink-500/10 flex items-center justify-center border border-pink-500/30">
@@ -114,16 +104,12 @@
   <!-- Main App Layout -->
   <main id="appContent" class="hidden flex-1 max-w-4xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-between h-[calc(100vh-65px)]">
     
-    <!-- Main View Panel -->
     <div class="glass rounded-3xl p-3 sm:p-5 flex flex-col flex-1 overflow-hidden relative shadow-2xl">
       
       <!-- TAB CHAT -->
       <div id="tabChat" class="flex-1 flex flex-col h-full overflow-hidden">
-        
-        <!-- Chat Messages Container -->
         <div id="chatBox" class="flex-1 overflow-y-auto space-y-3.5 p-1 sm:p-2 no-scrollbar"></div>
         
-        <!-- Typing Indicator -->
         <div id="typingIndicator" class="hidden px-2 py-1 flex items-center gap-2 text-xs text-pink-300/80 italic font-medium">
           <span id="typingUser"></span> est en train d'écrire
           <div class="flex items-center gap-1">
@@ -133,7 +119,6 @@
           </div>
         </div>
 
-        <!-- Emoji Picker Bar -->
         <div id="emojiBar" class="hidden p-2 glass rounded-2xl mb-2 flex gap-3 overflow-x-auto text-xl no-scrollbar border border-white/10">
           <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">💖</span>
           <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">✨</span>
@@ -145,10 +130,7 @@
           <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">🦋</span>
         </div>
 
-        <!-- Message Input Bar (Style Insta / Snap) -->
         <div class="flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
-          
-          <!-- Plus (+) Button for Media Upload -->
           <label class="p-3 rounded-full glass hover:bg-white/10 text-pink-300 cursor-pointer active:scale-90 transition-transform flex items-center justify-center">
             <i class="fa-solid fa-plus text-lg"></i>
             <input type="file" id="chatImageInput" accept="image/*" class="hidden">
@@ -170,42 +152,51 @@
         </div>
       </div>
 
-      <!-- TAB GALLERY -->
+      <!-- TAB GALLERY (AMÉLIORÉE & DYNAMIQUE) -->
       <div id="tabGallery" class="hidden flex-1 flex flex-col h-full overflow-hidden">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-purple-300">Vos Souvenirs 📸</h3>
-          <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-purple-600/80 hover:bg-purple-500 font-semibold text-xs transition-all shadow-lg shadow-purple-600/20">
-            <i class="fa-solid fa-upload mr-1.5"></i>Ajouter
+          <div>
+            <h3 class="text-lg font-bold text-purple-300">Vos Souvenirs 📸</h3>
+            <p class="text-[11px] text-gray-400">Photos partagées en ensemble</p>
+          </div>
+          <label class="cursor-pointer px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 font-bold text-xs transition-all shadow-lg shadow-purple-600/30 flex items-center gap-2 text-white">
+            <i class="fa-solid fa-cloud-arrow-up"></i>Ajouter
             <input type="file" id="imageUploader" accept="image/*" class="hidden">
           </label>
         </div>
-        <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-2 gap-3 p-1 no-scrollbar"></div>
+        <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3 p-1 no-scrollbar"></div>
       </div>
 
-      <!-- TAB DATES -->
+      <!-- TAB DATES (STYLE MORDENE & FLUIDE) -->
       <div id="tabDates" class="hidden flex-1 flex flex-col h-full overflow-hidden">
-        <h3 class="text-lg font-bold text-amber-300 mb-3">Dates Importantes 🗓️</h3>
-        <div class="flex flex-col sm:flex-row gap-2 mb-3">
-          <input type="text" id="dateTitle" placeholder="Événement..." class="flex-1 px-3 py-2 rounded-xl glass border border-white/10 text-white text-sm">
-          <input type="date" id="datePicker" class="px-3 py-2 rounded-xl glass border border-white/10 text-white text-sm">
-          <button id="btnAddDate" class="px-4 py-2 rounded-xl bg-amber-500/90 font-bold text-black text-sm hover:bg-amber-400">Ajouter</button>
+        <div class="mb-4">
+          <h3 class="text-lg font-bold text-amber-300">Dates Importantes 🗓️</h3>
+          <p class="text-[11px] text-gray-400">Moments inoubliables à ne pas oublier</p>
+        </div>
+        <div class="glass-card p-3 rounded-2xl mb-4 flex flex-col sm:flex-row gap-2 border border-amber-500/20">
+          <input type="text" id="dateTitle" placeholder="Événement (ex: Anniversaire...)" class="flex-1 px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none focus:border-amber-400">
+          <input type="date" id="datePicker" class="px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none">
+          <button id="btnAddDate" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-black text-xs hover:opacity-90 active:scale-95 transition-all shadow-md">Ajouter</button>
         </div>
         <div id="datesList" class="flex-1 overflow-y-auto space-y-2.5 p-1 no-scrollbar"></div>
       </div>
 
-      <!-- TAB CHECKLIST -->
+      <!-- TAB CHECKLIST (DESIGN ULTRA ELEGANT) -->
       <div id="tabTodo" class="hidden flex-1 flex flex-col h-full overflow-hidden">
-        <h3 class="text-lg font-bold text-emerald-300 mb-3">Checklist / Projets 📝</h3>
-        <div class="flex gap-2 mb-3">
-          <input type="text" id="todoTitle" placeholder="Chose à faire ensemble..." class="flex-1 px-3 py-2 rounded-xl glass border border-white/10 text-white text-sm">
-          <button id="btnAddTodo" class="px-4 py-2 rounded-xl bg-emerald-500/90 font-bold text-black text-sm hover:bg-emerald-400">Ajouter</button>
+        <div class="mb-4">
+          <h3 class="text-lg font-bold text-emerald-300">Checklist / Projets 📝</h3>
+          <p class="text-[11px] text-gray-400">Objectifs et activités prévus</p>
+        </div>
+        <div class="glass-card p-3 rounded-2xl mb-4 flex gap-2 border border-emerald-500/20">
+          <input type="text" id="todoTitle" placeholder="Projet à réaliser ensemble..." class="flex-1 px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-400">
+          <button id="btnAddTodo" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 font-bold text-black text-xs hover:opacity-90 active:scale-95 transition-all shadow-md">Ajouter</button>
         </div>
         <div id="todoList" class="flex-1 overflow-y-auto space-y-2.5 p-1 no-scrollbar"></div>
       </div>
 
     </div>
 
-    <!-- Navigation Bar Mobile-Style Bottom Bar -->
+    <!-- Navigation Bar Bottom -->
     <div class="glass rounded-2xl p-2 mt-3 flex justify-around items-center border border-white/10">
       <button id="navChat" class="tab-btn flex-1 flex flex-col items-center justify-center p-2 rounded-xl text-pink-400 bg-white/10 font-semibold transition-all">
         <i class="fa-solid fa-comments text-lg"></i>
@@ -227,13 +218,12 @@
 
   </main>
 
-  <!-- JavaScript Code (Firebase Module Version) -->
+  <!-- JavaScript Code -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, update, onValue, set, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-    // ⚙️ Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDeYfQgykcAxJX_75tQFB8N6sGrRjgTRLI",
       authDomain: "ourspace-f0378.firebaseapp.com",
@@ -245,7 +235,6 @@
       measurementId: "G-1BM636JWTY"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const storage = getStorage(app);
@@ -254,7 +243,6 @@
     let mediaRecorder, audioChunks = [];
     let typingTimeout = null;
 
-    // --- Entry ---
     window.selectProfile = function(name) {
       currentUser = name;
       enterApp();
@@ -276,7 +264,6 @@
       listenTodos();
     }
 
-    // --- medoud Heart Effect ---
     document.getElementById('btnMedoud').addEventListener('click', (e) => {
       for (let i = 0; i < 12; i++) {
         const heart = document.createElement('div');
@@ -289,7 +276,6 @@
       }
     });
 
-    // --- Realtime Chat & Vu ---
     function sendMessage(audioUrl = null, imageUrl = null) {
       const input = document.getElementById('msgInput');
       const text = input.value.trim();
@@ -314,7 +300,6 @@
       if (e.key === 'Enter') sendMessage();
     });
 
-    // --- Plus (+) Button Upload Image in Chat ---
     document.getElementById('chatImageInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -324,7 +309,6 @@
       sendMessage(null, url);
     });
 
-    // --- Typing Feature ---
     function setTypingState(isTyping) {
       set(ref(db, `typing_${currentUser}`), isTyping);
     }
@@ -349,20 +333,18 @@
       });
     }
 
-    // --- Delete Message Functionality ---
     window.deleteMessage = function(msgKey) {
       if (confirm("Voulez-vous vraiment supprimer ce message ?")) {
         remove(ref(db, `messages_girls/${msgKey}`));
       }
     };
 
-    // --- Double Tap Reaction Functionality ---
+    // --- Double Tap Reaction: Toggle (أضف/احذف Reaction) ---
     window.toggleReaction = function(msgKey, currentReact) {
-      const newReact = currentReact ? null : '❤️';
+      const newReact = (currentReact && currentReact.trim() !== '') ? null : '❤️';
       update(ref(db, `messages_girls/${msgKey}`), { reaction: newReact });
     };
 
-    // --- Render Messages ---
     function listenMessages() {
       onChildAdded(ref(db, 'messages_girls'), (snapshot) => {
         const msgKey = snapshot.key;
@@ -383,9 +365,8 @@
         else if (msg.audio) innerContent = `<audio controls src="${msg.audio}" class="w-48 h-9 mt-1"></audio>`;
         else if (msg.image) innerContent = `<img src="${msg.image}" class="rounded-xl max-w-[200px] max-h-[250px] object-cover">`;
 
-        // Delete button visible ONLY for the sender
         const deleteBtn = isMe ? `
-          <button onclick="deleteMessage('${msgKey}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-400 hover:text-red-300 p-1 mr-1" title="Supprimer">
+          <button onclick="deleteMessage('${msgKey}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-400 hover:text-red-300 p-1 mr-1">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         ` : '';
@@ -397,7 +378,7 @@
           </div>
           <div id="bubble-${msgKey}" class="relative max-w-[80%] p-3 rounded-2xl cursor-pointer select-none ${isMe ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-br-none shadow-md' : 'glass-card text-gray-100 rounded-bl-none'}">
             ${innerContent}
-            <div id="react-${msgKey}" class="absolute -bottom-2 -right-1 text-sm bg-black/60 px-1.5 py-0.5 rounded-full border border-white/20 react-pop ${msg.reaction ? '' : 'hidden'}">
+            <div id="react-${msgKey}" class="absolute -bottom-2 -right-1 text-sm bg-black/70 px-1.5 py-0.5 rounded-full border border-white/20 react-pop ${msg.reaction ? '' : 'hidden'}">
               ${msg.reaction || ''}
             </div>
           </div>
@@ -409,29 +390,14 @@
         box.appendChild(msgDiv);
         box.scrollTop = box.scrollHeight;
 
-        // Double Tap Listener for Reaction
-        const bubble = document.getElementById(`bubble-${msgKey}`);
-        let lastTap = 0;
-        bubble.addEventListener('touchend', (e) => {
-          const currentTime = new Date().getTime();
-          const tapLength = currentTime - lastTap;
-          if (tapLength < 300 && tapLength > 0) {
-            toggleReaction(msgKey, msg.reaction);
-            e.preventDefault();
-          }
-          lastTap = currentTime;
-        });
-        bubble.addEventListener('dblclick', () => {
-          toggleReaction(msgKey, msg.reaction);
-        });
+        let currentReactionValue = msg.reaction;
 
-        // Realtime update of Reactions
         onValue(ref(db, `messages_girls/${msgKey}/reaction`), (reactSnap) => {
+          currentReactionValue = reactSnap.val();
           const reactElem = document.getElementById(`react-${msgKey}`);
-          const reactVal = reactSnap.val();
           if (reactElem) {
-            if (reactVal) {
-              reactElem.innerText = reactVal;
+            if (currentReactionValue) {
+              reactElem.innerText = currentReactionValue;
               reactElem.classList.remove('hidden');
             } else {
               reactElem.classList.add('hidden');
@@ -439,7 +405,21 @@
           }
         });
 
-        // Realtime update of Vu tag
+        const bubble = document.getElementById(`bubble-${msgKey}`);
+        let lastTap = 0;
+        bubble.addEventListener('touchend', (e) => {
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTap;
+          if (tapLength < 300 && tapLength > 0) {
+            toggleReaction(msgKey, currentReactionValue);
+            e.preventDefault();
+          }
+          lastTap = currentTime;
+        });
+        bubble.addEventListener('dblclick', () => {
+          toggleReaction(msgKey, currentReactionValue);
+        });
+
         if (isMe) {
           onValue(ref(db, `messages_girls/${msgKey}/seen`), (seenSnap) => {
             const seenElem = document.getElementById(`seen-${msgKey}`);
@@ -450,14 +430,12 @@
         }
       });
 
-      // Handle message deletion from screen
       onChildRemoved(ref(db, 'messages_girls'), (snapshot) => {
         const removedDiv = document.getElementById(`msg-${snapshot.key}`);
         if (removedDiv) removedDiv.remove();
       });
     }
 
-    // --- Voice Recording ---
     document.getElementById('recBtn').addEventListener('click', async () => {
       const btn = document.getElementById('recBtn');
       if (!mediaRecorder || mediaRecorder.state === 'inactive') {
@@ -482,7 +460,6 @@
       }
     });
 
-    // --- Emojis ---
     document.getElementById('btnEmojiToggle').addEventListener('click', () => {
       document.getElementById('emojiBar').classList.toggle('hidden');
     });
@@ -493,7 +470,6 @@
       });
     });
 
-    // --- Tab Switching ---
     const tabs = ['Chat', 'Gallery', 'Dates', 'Todo'];
     tabs.forEach(tab => {
       document.getElementById(`nav${tab}`).addEventListener('click', () => {
@@ -506,27 +482,43 @@
       });
     });
 
-    // --- Gallery, Dates & Todos ---
+    // --- FIX GALERIE & UPLOAD IMAGE ---
     document.getElementById('imageUploader').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      const imgRef = storageRef(storage, `gallery_girls/${Date.now()}_${file.name}`);
-      await uploadBytes(imgRef, file);
-      const url = await getDownloadURL(imgRef);
-      push(ref(db, 'gallery_girls'), { url, uploader: currentUser });
+      try {
+        const imgRef = storageRef(storage, `gallery_girls/${Date.now()}_${file.name}`);
+        await uploadBytes(imgRef, file);
+        const url = await getDownloadURL(imgRef);
+        await push(ref(db, 'gallery_girls'), { url, uploader: currentUser, timestamp: Date.now() });
+      } catch (error) {
+        alert("Erreur lors de l'envoi de l'image.");
+      }
     });
 
     function listenGallery() {
-      onChildAdded(ref(db, 'gallery_girls'), (snapshot) => {
-        const data = snapshot.val();
+      onValue(ref(db, 'gallery_girls'), (snapshot) => {
         const grid = document.getElementById('galleryGrid');
-        const img = document.createElement('div');
-        img.className = 'rounded-2xl overflow-hidden glass border border-white/15 aspect-square shadow-lg';
-        img.innerHTML = `<img src="${data.url}" class="w-full h-full object-cover active:scale-105 transition-transform duration-300">`;
-        grid.prepend(img);
+        grid.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).reverse().forEach(key => {
+            const item = data[key];
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'relative group rounded-2xl overflow-hidden glass border border-white/15 aspect-square shadow-lg hover:scale-105 transition-all duration-300';
+            imgDiv.innerHTML = `
+              <img src="${item.url}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end">
+                <span class="text-[10px] text-pink-300 font-semibold">${item.uploader || ''}</span>
+              </div>
+            `;
+            grid.appendChild(imgDiv);
+          });
+        }
       });
     }
 
+    // --- DATES IMPROVED LIST ---
     document.getElementById('btnAddDate').addEventListener('click', () => {
       const title = document.getElementById('dateTitle').value.trim();
       const date = document.getElementById('datePicker').value;
@@ -535,17 +527,42 @@
       document.getElementById('dateTitle').value = '';
     });
 
+    window.removeDate = function(key) {
+      remove(ref(db, `dates_girls/${key}`));
+    };
+
     function listenDates() {
-      onChildAdded(ref(db, 'dates_girls'), (snapshot) => {
-        const d = snapshot.val();
+      onValue(ref(db, 'dates_girls'), (snapshot) => {
         const list = document.getElementById('datesList');
-        const item = document.createElement('div');
-        item.className = 'glass p-3 rounded-2xl border border-white/10 flex justify-between items-center';
-        item.innerHTML = `<div><h4 class="font-bold text-amber-200 text-sm">${d.title}</h4><span class="text-[10px] text-gray-400">Par ${d.addedBy}</span></div><span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono text-xs">${d.date}</span>`;
-        list.prepend(item);
+        list.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).reverse().forEach(key => {
+            const d = data[key];
+            const item = document.createElement('div');
+            item.className = 'glass-card p-3.5 rounded-2xl border border-amber-500/20 flex justify-between items-center shadow-lg hover:border-amber-500/40 transition-all';
+            item.innerHTML = `
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/30 text-amber-300 text-sm">
+                  <i class="fa-solid fa-star"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-amber-200 text-sm">${d.title}</h4>
+                  <span class="text-[10px] text-gray-400">Ajouté par ${d.addedBy}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono text-xs border border-amber-500/30">${d.date}</span>
+                <button onclick="removeDate('${key}')" class="text-xs text-red-400 hover:text-red-300 p-1.5"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            `;
+            list.appendChild(item);
+          });
+        }
       });
     }
 
+    // --- TODO IMPROVED LIST ---
     document.getElementById('btnAddTodo').addEventListener('click', () => {
       const title = document.getElementById('todoTitle').value.trim();
       if (!title) return;
@@ -553,20 +570,33 @@
       document.getElementById('todoTitle').value = '';
     });
 
+    window.removeTodo = function(key) {
+      remove(ref(db, `todos_girls/${key}`));
+    };
+
     function listenTodos() {
-      onChildAdded(ref(db, 'todos_girls'), (snapshot) => {
-        const t = snapshot.val();
+      onValue(ref(db, 'todos_girls'), (snapshot) => {
         const list = document.getElementById('todoList');
-        const item = document.createElement('div');
-        item.className = 'glass p-3 rounded-2xl border border-white/10 flex items-center justify-between';
-        item.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <i class="fa-regular fa-circle-check text-emerald-400 text-base"></i>
-            <span class="font-medium text-xs text-white">${t.title}</span>
-          </div>
-          <span class="text-[10px] text-gray-400">Par ${t.addedBy}</span>
-        `;
-        list.prepend(item);
+        list.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).reverse().forEach(key => {
+            const t = data[key];
+            const item = document.createElement('div');
+            item.className = 'glass-card p-3.5 rounded-2xl border border-emerald-500/20 flex items-center justify-between shadow-lg hover:border-emerald-500/40 transition-all';
+            item.innerHTML = `
+              <div class="flex items-center gap-3">
+                <i class="fa-regular fa-circle-check text-emerald-400 text-lg"></i>
+                <div>
+                  <span class="font-bold text-xs text-white block">${t.title}</span>
+                  <span class="text-[9px] text-gray-400">Par ${t.addedBy}</span>
+                </div>
+              </div>
+              <button onclick="removeTodo('${key}')" class="text-xs text-red-400 hover:text-red-300 p-1.5"><i class="fa-solid fa-trash"></i></button>
+            `;
+            list.appendChild(item);
+          });
+        }
       });
     }
   </script>

@@ -101,6 +101,12 @@
     </div>
   </div>
 
+  <!-- Image Viewer Modal (تكبير الصور عند الضغط) -->
+  <div id="imageModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <button id="closeImgModal" class="absolute top-5 right-5 text-white text-2xl p-2"><i class="fa-solid fa-xmark"></i></button>
+    <img id="modalImg" src="" class="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl">
+  </div>
+
   <!-- Main App Layout -->
   <main id="appContent" class="hidden flex-1 max-w-4xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-between h-[calc(100vh-65px)]">
     
@@ -108,6 +114,15 @@
       
       <!-- TAB CHAT -->
       <div id="tabChat" class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <!-- Selection Delete Header -->
+        <div id="selectionHeader" class="hidden pb-2 mb-2 border-b border-white/10 flex justify-between items-center px-2">
+          <span class="text-xs text-pink-300 font-semibold">Message sélectionné</span>
+          <button id="btnDeleteSelected" class="px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/40 rounded-lg text-xs font-bold active:scale-95">
+            <i class="fa-solid fa-trash mr-1"></i> Supprimer
+          </button>
+        </div>
+
         <div id="chatBox" class="flex-1 overflow-y-auto space-y-3.5 p-1 sm:p-2 no-scrollbar"></div>
         
         <div id="typingIndicator" class="hidden px-2 py-1 flex items-center gap-2 text-xs text-pink-300/80 italic font-medium">
@@ -164,14 +179,14 @@
             <input type="file" id="imageUploader" accept="image/*" class="hidden">
           </label>
         </div>
-        <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3 p-1 no-scrollbar"></div>
+        <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-2 gap-3 p-1 no-scrollbar"></div>
       </div>
 
       <!-- TAB DATES -->
       <div id="tabDates" class="hidden flex-1 flex flex-col h-full overflow-hidden">
         <div class="mb-4">
           <h3 class="text-lg font-bold text-amber-300">Dates Importantes 🗓️</h3>
-          <p class="text-[11px] text-gray-400">Moments inoubliables à ne pas oublier</p>
+          <p class="text-[11px] text-gray-400">Moments inoubliables</p>
         </div>
         <div class="glass-card p-3 rounded-2xl mb-4 flex flex-col sm:flex-row gap-2 border border-amber-500/20">
           <input type="text" id="dateTitle" placeholder="Événement..." class="flex-1 px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none focus:border-amber-400">
@@ -185,7 +200,7 @@
       <div id="tabTodo" class="hidden flex-1 flex flex-col h-full overflow-hidden">
         <div class="mb-4">
           <h3 class="text-lg font-bold text-emerald-300">Checklist / Projets 📝</h3>
-          <p class="text-[11px] text-gray-400">Objectifs et activités prévus</p>
+          <p class="text-[11px] text-gray-400">Objectifs prévus</p>
         </div>
         <div class="glass-card p-3 rounded-2xl mb-4 flex gap-2 border border-emerald-500/20">
           <input type="text" id="todoTitle" placeholder="Projet à réaliser ensemble..." class="flex-1 px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-400">
@@ -240,8 +255,8 @@
     let currentUser = "";
     let mediaRecorder, audioChunks = [];
     let typingTimeout = null;
+    let selectedMsgKey = null;
 
-    // --- BASE64 FILE CONVERTER (مضمون 100% لتخزين الصور والصوتيات دون مشاكل Storage Rules) ---
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -271,6 +286,15 @@
       listenDates();
       listenTodos();
     }
+
+    // Modal Image Viewer
+    window.openImageModal = function(src) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('imageModal').classList.remove('hidden');
+    };
+    document.getElementById('closeImgModal').addEventListener('click', () => {
+      document.getElementById('imageModal').classList.add('hidden');
+    });
 
     document.getElementById('btnMedoud').addEventListener('click', (e) => {
       for (let i = 0; i < 12; i++) {
@@ -339,11 +363,24 @@
       });
     }
 
-    window.deleteMessage = function(msgKey) {
-      if (confirm("Voulez-vous supprimer ce message ?")) {
-        remove(ref(db, `messages_girls/${msgKey}`));
+    // --- Selection and Delete ---
+    window.selectMessage = function(msgKey) {
+      if (selectedMsgKey === msgKey) {
+        selectedMsgKey = null;
+        document.getElementById('selectionHeader').classList.add('hidden');
+      } else {
+        selectedMsgKey = msgKey;
+        document.getElementById('selectionHeader').classList.remove('hidden');
       }
     };
+
+    document.getElementById('btnDeleteSelected').addEventListener('click', () => {
+      if (selectedMsgKey && confirm("Voulez-vous supprimer ce message ?")) {
+        remove(ref(db, `messages_girls/${selectedMsgKey}`));
+        selectedMsgKey = null;
+        document.getElementById('selectionHeader').classList.add('hidden');
+      }
+    });
 
     window.toggleReaction = function(msgKey, currentReact) {
       const newReact = (currentReact && currentReact.trim() !== '') ? null : '❤️';
@@ -368,17 +405,10 @@
         let innerContent = '';
         if (msg.text) innerContent = `<p class="text-sm leading-relaxed">${msg.text}</p>`;
         else if (msg.audio) innerContent = `<audio controls src="${msg.audio}" class="w-48 h-9 mt-1"></audio>`;
-        else if (msg.image) innerContent = `<img src="${msg.image}" class="rounded-xl max-w-[200px] max-h-[250px] object-cover">`;
-
-        const deleteBtn = isMe ? `
-          <button onclick="deleteMessage('${msgKey}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-400 hover:text-red-300 p-1 mr-1">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        ` : '';
+        else if (msg.image) innerContent = `<img src="${msg.image}" onclick="openImageModal('${msg.image}')" class="rounded-xl max-w-[200px] max-h-[250px] object-cover cursor-pointer">`;
 
         msgDiv.innerHTML = `
           <div class="flex items-center gap-1">
-            ${isMe ? deleteBtn : ''}
             <span class="text-[10px] text-gray-400 mb-0.5 px-1">${msg.sender} • ${msg.time}</span>
           </div>
           <div id="bubble-${msgKey}" class="relative max-w-[80%] p-3 rounded-2xl cursor-pointer select-none ${isMe ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-br-none shadow-md' : 'glass-card text-gray-100 rounded-bl-none'}">
@@ -412,6 +442,11 @@
 
         const bubble = document.getElementById(`bubble-${msgKey}`);
         let lastTap = 0;
+        
+        bubble.addEventListener('click', () => {
+          if (isMe) selectMessage(msgKey);
+        });
+
         bubble.addEventListener('touchend', (e) => {
           const currentTime = new Date().getTime();
           const tapLength = currentTime - lastTap;
@@ -421,6 +456,7 @@
           }
           lastTap = currentTime;
         });
+
         bubble.addEventListener('dblclick', () => {
           toggleReaction(msgKey, currentReactionValue);
         });
@@ -441,13 +477,18 @@
       });
     }
 
-    // --- RECORD VOICE MESSAGES ---
+    // --- FIX VOICE RECORDING ON SAFARI / IOS ---
     document.getElementById('recBtn').addEventListener('click', async () => {
       const btn = document.getElementById('recBtn');
       if (!mediaRecorder || mediaRecorder.state === 'inactive') {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
+          
+          let options = {};
+          if (MediaRecorder.isTypeSupported('audio/mp4')) options.mimeType = 'audio/mp4';
+          else if (MediaRecorder.isTypeSupported('audio/aac')) options.mimeType = 'audio/aac';
+          
+          mediaRecorder = new MediaRecorder(stream, options);
           audioChunks = [];
           
           mediaRecorder.ondataavailable = e => {
@@ -455,7 +496,7 @@
           };
           
           mediaRecorder.onstop = async () => {
-            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/wav' });
             const base64Audio = await fileToBase64(blob);
             sendMessage(base64Audio, null);
             stream.getTracks().forEach(track => track.stop());
@@ -464,7 +505,7 @@
           mediaRecorder.start();
           btn.classList.add('bg-red-500', 'animate-pulse');
         } catch (err) {
-          alert("Erreur: Veuillez autoriser le microphone.");
+          alert("Erreur micro: Autorisez l'accès au microphone.");
         }
       } else {
         mediaRecorder.stop();
@@ -494,7 +535,7 @@
       });
     });
 
-    // --- GALERIE LISTEN & UPLOAD ---
+    // --- GALERIE FULL SIZE WITH MODAL ---
     document.getElementById('imageUploader').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -515,10 +556,10 @@
           Object.keys(data).reverse().forEach(key => {
             const item = data[key];
             const imgDiv = document.createElement('div');
-            imgDiv.className = 'relative group rounded-2xl overflow-hidden glass border border-white/15 aspect-square shadow-lg hover:scale-105 transition-all duration-300';
+            imgDiv.className = 'relative group rounded-2xl overflow-hidden glass border border-white/15 aspect-square shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer';
             imgDiv.innerHTML = `
-              <img src="${item.url}" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end">
+              <img src="${item.url}" onclick="openImageModal('${item.url}')" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end pointer-events-none">
                 <span class="text-[10px] text-pink-300 font-semibold">${item.uploader || ''}</span>
               </div>
             `;

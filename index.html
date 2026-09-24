@@ -174,7 +174,7 @@
           <p class="text-[11px] text-gray-400">Moments inoubliables à ne pas oublier</p>
         </div>
         <div class="glass-card p-3 rounded-2xl mb-4 flex flex-col sm:flex-row gap-2 border border-amber-500/20">
-          <input type="text" id="dateTitle" placeholder="Événement (ex: Anniversaire...)" class="flex-1 px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none focus:border-amber-400">
+          <input type="text" id="dateTitle" placeholder="Événement..." class="flex-1 px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none focus:border-amber-400">
           <input type="date" id="datePicker" class="px-3.5 py-2 rounded-xl glass border border-white/10 text-white text-xs focus:outline-none">
           <button id="btnAddDate" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-black text-xs hover:opacity-90 active:scale-95 transition-all shadow-md">Ajouter</button>
         </div>
@@ -221,8 +221,7 @@
   <!-- JavaScript Code -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, update, onValue, set, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+    import { getDatabase, ref, push, update, onValue, set, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDeYfQgykcAxJX_75tQFB8N6sGrRjgTRLI",
@@ -237,11 +236,20 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const storage = getStorage(app);
 
     let currentUser = "";
     let mediaRecorder, audioChunks = [];
     let typingTimeout = null;
+
+    // --- BASE64 FILE CONVERTER (مضمون 100% لتخزين الصور والصوتيات دون مشاكل Storage Rules) ---
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
 
     window.selectProfile = function(name) {
       currentUser = name;
@@ -276,16 +284,16 @@
       }
     });
 
-    function sendMessage(audioUrl = null, imageUrl = null) {
+    function sendMessage(audioData = null, imageData = null) {
       const input = document.getElementById('msgInput');
       const text = input.value.trim();
-      if (!text && !audioUrl && !imageUrl) return;
+      if (!text && !audioData && !imageData) return;
 
       push(ref(db, 'messages_girls'), {
         sender: currentUser,
         text: text || null,
-        audio: audioUrl || null,
-        image: imageUrl || null,
+        audio: audioData || null,
+        image: imageData || null,
         reaction: null,
         seen: false,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -303,10 +311,8 @@
     document.getElementById('chatImageInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      const imgRef = storageRef(storage, `chat_images/${Date.now()}_${file.name}`);
-      await uploadBytes(imgRef, file);
-      const url = await getDownloadURL(imgRef);
-      sendMessage(null, url);
+      const base64Image = await fileToBase64(file);
+      sendMessage(null, base64Image);
     });
 
     function setTypingState(isTyping) {
@@ -334,7 +340,7 @@
     }
 
     window.deleteMessage = function(msgKey) {
-      if (confirm("Voulez-vous vraiment supprimer ce message ?")) {
+      if (confirm("Voulez-vous supprimer ce message ?")) {
         remove(ref(db, `messages_girls/${msgKey}`));
       }
     };
@@ -435,19 +441,13 @@
       });
     }
 
-    // --- VOICE RECORDING SMART COMPATIBILITY (iOS / Android / Desktop) ---
+    // --- RECORD VOICE MESSAGES ---
     document.getElementById('recBtn').addEventListener('click', async () => {
       const btn = document.getElementById('recBtn');
       if (!mediaRecorder || mediaRecorder.state === 'inactive') {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          
-          let mimeType = 'audio/webm';
-          if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
-          else if (MediaRecorder.isTypeSupported('audio/aac')) mimeType = 'audio/aac';
-          else if (MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
-
-          mediaRecorder = new MediaRecorder(stream, { mimeType });
+          mediaRecorder = new MediaRecorder(stream);
           audioChunks = [];
           
           mediaRecorder.ondataavailable = e => {
@@ -455,19 +455,16 @@
           };
           
           mediaRecorder.onstop = async () => {
-            const blob = new Blob(audioChunks, { type: mimeType });
-            const ext = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('aac') ? 'aac' : 'webm';
-            const audioRef = storageRef(storage, `voice_girls/${Date.now()}.${ext}`);
-            await uploadBytes(audioRef, blob);
-            const url = await getDownloadURL(audioRef);
-            sendMessage(url);
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            const base64Audio = await fileToBase64(blob);
+            sendMessage(base64Audio, null);
             stream.getTracks().forEach(track => track.stop());
           };
           
           mediaRecorder.start();
           btn.classList.add('bg-red-500', 'animate-pulse');
         } catch (err) {
-          alert("Microphone غير متاح أو لم يتم السماح بالإذن.");
+          alert("Erreur: Veuillez autoriser le microphone.");
         }
       } else {
         mediaRecorder.stop();
@@ -502,10 +499,8 @@
       const file = e.target.files[0];
       if (!file) return;
       try {
-        const imgRef = storageRef(storage, `gallery_girls/${Date.now()}_${file.name}`);
-        await uploadBytes(imgRef, file);
-        const url = await getDownloadURL(imgRef);
-        await push(ref(db, 'gallery_girls'), { url, uploader: currentUser, timestamp: Date.now() });
+        const base64Image = await fileToBase64(file);
+        await push(ref(db, 'gallery_girls'), { url: base64Image, uploader: currentUser, timestamp: Date.now() });
       } catch (error) {
         alert("Erreur lors de l'envoi de l'image.");
       }

@@ -152,12 +152,12 @@
         </div>
       </div>
 
-      <!-- TAB GALLERY (AMÉLIORÉE & DYNAMIQUE) -->
+      <!-- TAB GALLERY -->
       <div id="tabGallery" class="hidden flex-1 flex flex-col h-full overflow-hidden">
         <div class="flex justify-between items-center mb-4">
           <div>
             <h3 class="text-lg font-bold text-purple-300">Vos Souvenirs 📸</h3>
-            <p class="text-[11px] text-gray-400">Photos partagées en ensemble</p>
+            <p class="text-[11px] text-gray-400">Photos partagées ensemble</p>
           </div>
           <label class="cursor-pointer px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 font-bold text-xs transition-all shadow-lg shadow-purple-600/30 flex items-center gap-2 text-white">
             <i class="fa-solid fa-cloud-arrow-up"></i>Ajouter
@@ -167,7 +167,7 @@
         <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3 p-1 no-scrollbar"></div>
       </div>
 
-      <!-- TAB DATES (STYLE MORDENE & FLUIDE) -->
+      <!-- TAB DATES -->
       <div id="tabDates" class="hidden flex-1 flex flex-col h-full overflow-hidden">
         <div class="mb-4">
           <h3 class="text-lg font-bold text-amber-300">Dates Importantes 🗓️</h3>
@@ -181,7 +181,7 @@
         <div id="datesList" class="flex-1 overflow-y-auto space-y-2.5 p-1 no-scrollbar"></div>
       </div>
 
-      <!-- TAB CHECKLIST (DESIGN ULTRA ELEGANT) -->
+      <!-- TAB CHECKLIST -->
       <div id="tabTodo" class="hidden flex-1 flex flex-col h-full overflow-hidden">
         <div class="mb-4">
           <h3 class="text-lg font-bold text-emerald-300">Checklist / Projets 📝</h3>
@@ -218,7 +218,7 @@
 
   </main>
 
-  <!-- JavaScript Code -->
+  <!-- JavaScript Code (Firebase Module Version) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, update, onValue, set, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -339,7 +339,6 @@
       }
     };
 
-    // --- Double Tap Reaction: Toggle (أضف/احذف Reaction) ---
     window.toggleReaction = function(msgKey, currentReact) {
       const newReact = (currentReact && currentReact.trim() !== '') ? null : '❤️';
       update(ref(db, `messages_girls/${msgKey}`), { reaction: newReact });

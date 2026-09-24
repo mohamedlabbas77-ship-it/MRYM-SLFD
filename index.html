@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meriem & Soulaf - Espace Privé</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .heart-anim {
+      position: fixed;
+      font-size: 24px;
+      animation: floatUp 2s ease-out forwards;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-150px) scale(1.8); }
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-2xl">
+    <div id="btnMedoud" class="cursor-pointer group flex items-center gap-2 bg-gradient-to-r from-pink-500/20 to-purple-500/20 px-4 py-2 rounded-full border border-pink-500/30 hover:scale-105 transition-all">
+      <span class="font-extrabold text-pink-400 text-lg tracking-wider">medoud</span>
+      <i class="fa-solid fa-heart text-pink-500 group-hover:animate-ping"></i>
+    </div>
+    <div id="userBadge" class="hidden text-sm font-semibold px-4 py-1.5 rounded-full bg-white/10 border border-white/20"></div>
+  </header>
+
+  <!-- Login Modal (MODE TEST - NO PASSWORD LOCKED YET) -->
+  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass p-8 rounded-3xl max-w-md w-full text-center shadow-2xl border border-white/20">
+      <h2 class="text-3xl font-extrabold mb-2 bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">Espace Privé</h2>
+      <p class="text-gray-400 text-sm mb-6">Mode Test: Choisissez votre profil pour entrer directement</p>
+      
+      <div class="grid grid-cols-2 gap-4 mb-2">
+        <button id="btnSelectMeriem" class="p-4 rounded-2xl glass hover:border-pink-500 hover:bg-pink-500/10 transition-all flex flex-col items-center gap-2">
+          <div class="w-16 h-16 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 text-2xl font-bold border border-pink-500/40">M</div>
+          <span class="font-bold text-pink-300">Meriem</span>
+        </button>
+        <button id="btnSelectSoulaf" class="p-4 rounded-2xl glass hover:border-purple-500 hover:bg-purple-500/10 transition-all flex flex-col items-center gap-2">
+          <div class="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-2xl font-bold border border-purple-500/40">S</div>
+          <span class="font-bold text-purple-300">Soulaf</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Layout -->
+  <main id="appContent" class="hidden flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
+    
+    <!-- Sidebar Navigation -->
+    <div class="md:col-span-3 glass rounded-3xl p-4 flex md:flex-col justify-around md:justify-start gap-4">
+      <button id="navChat" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all font-semibold">
+        <i class="fa-solid fa-comments text-pink-400 text-xl"></i>
+        <span class="hidden md:inline">Messages</span>
+      </button>
+      <button id="navGallery" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 p-3.5 rounded-2xl hover:bg-white/10 transition-all font-semibold">
+        <i class="fa-solid fa-images text-purple-400 text-xl"></i>
+        <span class="hidden md:inline">Galerie Photos</span>
+      </button>
+      <button id="navDates" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 p-3.5 rounded-2xl hover:bg-white/10 transition-all font-semibold">
+        <i class="fa-solid fa-calendar-star text-amber-400 text-xl"></i>
+        <span class="hidden md:inline">Dates Clés</span>
+      </button>
+    </div>
+
+    <!-- Main View Panel -->
+    <div class="md:col-span-9 glass rounded-3xl p-4 md:p-6 flex flex-col h-[78vh]">
+      
+      <!-- TAB CHAT -->
+      <div id="tabChat" class="flex-1 flex flex-col h-full overflow-hidden">
+        <div id="chatBox" class="flex-1 overflow-y-auto space-y-4 p-2 pr-4"></div>
+        
+        <!-- Emoji Bar -->
+        <div id="emojiBar" class="hidden p-2 glass rounded-xl mb-2 flex gap-2 overflow-x-auto text-xl">
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">💖</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">✨</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">🌸</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">👑</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">🥺</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">😂</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">💌</span>
+          <span class="emoji-item cursor-pointer hover:scale-125 transition-transform">🦋</span>
+        </div>
+
+        <!-- Message Controls -->
+        <div class="flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
+          <button id="btnEmojiToggle" class="p-3 rounded-full glass hover:bg-white/20 text-amber-300">
+            <i class="fa-solid fa-face-smile text-xl"></i>
+          </button>
+          <input type="text" id="msgInput" placeholder="Écrivez un message secret..." class="flex-1 px-4 py-3 rounded-2xl glass border border-white/10 focus:outline-none focus:border-pink-500 text-white">
+          <button id="recBtn" class="p-3 rounded-full glass hover:bg-red-500/20 text-red-400 transition-all">
+            <i class="fa-solid fa-microphone text-xl"></i>
+          </button>
+          <button id="btnSendMsg" class="p-3 px-5 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 font-bold hover:opacity-90 shadow-lg shadow-pink-500/20">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB GALLERY -->
+      <div id="tabGallery" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-purple-300">Vos Souvenirs 📸</h3>
+          <label class="cursor-pointer px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 font-semibold text-sm transition-all shadow-lg shadow-purple-600/30">
+            <i class="fa-solid fa-upload mr-2"></i>Ajouter une photo
+            <input type="file" id="imageUploader" accept="image/*" class="hidden">
+          </label>
+        </div>
+        <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-4 p-2"></div>
+      </div>
+
+      <!-- TAB DATES -->
+      <div id="tabDates" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+        <h3 class="text-xl font-bold text-amber-300 mb-4">Dates Importantes 🗓️</h3>
+        <div class="flex gap-2 mb-4">
+          <input type="text" id="dateTitle" placeholder="Événement (ex: Anniversaire)" class="flex-1 px-3 py-2 rounded-xl glass border border-white/10 text-white">
+          <input type="date" id="datePicker" class="px-3 py-2 rounded-xl glass border border-white/10 text-white">
+          <button id="btnAddDate" class="px-4 py-2 rounded-xl bg-amber-500 font-bold text-black hover:bg-amber-400">Ajouter</button>
+        </div>
+        <div id="datesList" class="flex-1 overflow-y-auto space-y-3 p-2"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- JavaScript Code (Firebase Module Version) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+    // ⚙️ Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeYfQgykcAxJX_75tQFB8N6sGrRjgTRLI",
+      authDomain: "ourspace-f0378.firebaseapp.com",
+      databaseURL: "https://ourspace-f0378-default-rtdb.firebaseio.com",
+      projectId: "ourspace-f0378",
+      storageBucket: "ourspace-f0378.firebasestorage.app",
+      messagingSenderId: "996661499365",
+      appId: "1:996661499365:web:c35676b1d16ae900e48b0c",
+      measurementId: "G-1BM636JWTY"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    let currentUser = "";
+    let mediaRecorder, audioChunks = [];
+
+    // --- Direct Entry for Testing ---
+    window.selectProfile = function(name) {
+      currentUser = name;
+      enterApp();
+    };
+
+    document.getElementById('btnSelectMeriem').addEventListener('click', () => selectProfile('Meriem'));
+    document.getElementById('btnSelectSoulaf').addEventListener('click', () => selectProfile('Soulaf'));
+
+    function enterApp() {
+      document.getElementById('authModal').classList.add('hidden');
+      document.getElementById('appContent').classList.remove('hidden');
+      document.getElementById('userBadge').innerText = currentUser === 'Meriem' ? '🌸 Meriem' : '✨ Soulaf';
+      document.getElementById('userBadge').classList.remove('hidden');
+      
+      listenMessages();
+      listenGallery();
+      listenDates();
+    }
+
+    // --- medoud Heart Effect ---
+    document.getElementById('btnMedoud').addEventListener('click', (e) => {
+      for (let i = 0; i < 15; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart-anim';
+        heart.innerHTML = ['💖','✨','🌸','❤️','💕'][Math.floor(Math.random()*5)];
+        heart.style.left = (e.clientX + (Math.random() * 100 - 50)) + 'px';
+        heart.style.top = (e.clientY + (Math.random() * 100 - 50)) + 'px';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 2000);
+      }
+    });
+
+    // --- Realtime Chat (En direct) ---
+    function sendMessage(audioUrl = null) {
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text && !audioUrl) return;
+
+      push(ref(db, 'messages_girls'), {
+        sender: currentUser,
+        text: text || null,
+        audio: audioUrl || null,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      input.value = '';
+    }
+
+    document.getElementById('btnSendMsg').addEventListener('click', () => sendMessage());
+    document.getElementById('msgInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    function listenMessages() {
+      onChildAdded(ref(db, 'messages_girls'), (snapshot) => {
+        const msg = snapshot.val();
+        const box = document.getElementById('chatBox');
+        const isMe = msg.sender === currentUser;
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+        
+        let content = msg.text ? `<p>${msg.text}</p>` : `<audio controls src="${msg.audio}" class="w-48 h-10 mt-1"></audio>`;
+        
+        msgDiv.innerHTML = `
+          <span class="text-[10px] text-gray-400 mb-1 px-1">${msg.sender} • ${msg.time}</span>
+          <div class="max-w-[75%] p-3.5 rounded-2xl ${isMe ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-br-none' : 'glass border border-white/20 text-gray-100 rounded-bl-none'}">
+            ${content}
+          </div>
+        `;
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    // --- Voice Recording ---
+    document.getElementById('recBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('recBtn');
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioRef = storageRef(storage, `voice_girls/${Date.now()}.webm`);
+          await uploadBytes(audioRef, blob);
+          const url = await getDownloadURL(audioRef);
+          sendMessage(url);
+        };
+        
+        mediaRecorder.start();
+        btn.classList.add('bg-red-500', 'animate-pulse');
+      } else {
+        mediaRecorder.stop();
+        btn.classList.remove('bg-red-500', 'animate-pulse');
+      }
+    });
+
+    // --- Emojis ---
+    document.getElementById('btnEmojiToggle').addEventListener('click', () => {
+      document.getElementById('emojiBar').classList.toggle('hidden');
+    });
+
+    document.querySelectorAll('.emoji-item').forEach(el => {
+      el.addEventListener('click', () => {
+        document.getElementById('msgInput').value += el.innerText;
+      });
+    });
+
+    // --- Navigation Tabs ---
+    function switchTab(tab) {
+      document.getElementById('tabChat').classList.add('hidden');
+      document.getElementById('tabGallery').classList.add('hidden');
+      document.getElementById('tabDates').classList.add('hidden');
+      
+      if (tab === 'chat') document.getElementById('tabChat').classList.remove('hidden');
+      if (tab === 'gallery') document.getElementById('tabGallery').classList.remove('hidden');
+      if (tab === 'dates') document.getElementById('tabDates').classList.remove('hidden');
+    }
+
+    document.getElementById('navChat').addEventListener('click', () => switchTab('chat'));
+    document.getElementById('navGallery').addEventListener('click', () => switchTab('gallery'));
+    document.getElementById('navDates').addEventListener('click', () => switchTab('dates'));
+
+    // --- Gallery & Dates Sync ---
+    document.getElementById('imageUploader').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const imgRef = storageRef(storage, `gallery_girls/${Date.now()}_${file.name}`);
+      await uploadBytes(imgRef, file);
+      const url = await getDownloadURL(imgRef);
+      push(ref(db, 'gallery_girls'), { url, uploader: currentUser });
+    });
+
+    function listenGallery() {
+      onChildAdded(ref(db, 'gallery_girls'), (snapshot) => {
+        const data = snapshot.val();
+        const grid = document.getElementById('galleryGrid');
+        const img = document.createElement('div');
+        img.className = 'rounded-2xl overflow-hidden glass border border-white/20 aspect-square';
+        img.innerHTML = `<img src="${data.url}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">`;
+        grid.prepend(img);
+      });
+    }
+
+    document.getElementById('btnAddDate').addEventListener('click', () => {
+      const title = document.getElementById('dateTitle').value.trim();
+      const date = document.getElementById('datePicker').value;
+      if (!title || !date) return;
+      push(ref(db, 'dates_girls'), { title, date, addedBy: currentUser });
+      document.getElementById('dateTitle').value = '';
+    });
+
+    function listenDates() {
+      onChildAdded(ref(db, 'dates_girls'), (snapshot) => {
+        const d = snapshot.val();
+        const list = document.getElementById('datesList');
+        const item = document.createElement('div');
+        item.className = 'glass p-4 rounded-2xl border border-white/10 flex justify-between items-center';
+        item.innerHTML = `<div><h4 class="font-bold text-amber-200">${d.title}</h4><span class="text-xs text-gray-400">Ajouté par ${d.addedBy}</span></div><span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono text-sm">${d.date}</span>`;
+        list.prepend(item);
+      });
+    }
+  </script>
+</body>
+</html>

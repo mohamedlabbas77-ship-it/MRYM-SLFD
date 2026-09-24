@@ -218,7 +218,7 @@
 
   </main>
 
-  <!-- JavaScript Code (Firebase Module Version) -->
+  <!-- JavaScript Code -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, update, onValue, set, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -435,24 +435,40 @@
       });
     }
 
+    // --- VOICE RECORDING SMART COMPATIBILITY (iOS / Android / Desktop) ---
     document.getElementById('recBtn').addEventListener('click', async () => {
       const btn = document.getElementById('recBtn');
       if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        mediaRecorder.onstop = async () => {
-          const blob = new Blob(audioChunks, { type: 'audio/webm' });
-          const audioRef = storageRef(storage, `voice_girls/${Date.now()}.webm`);
-          await uploadBytes(audioRef, blob);
-          const url = await getDownloadURL(audioRef);
-          sendMessage(url);
-        };
-        
-        mediaRecorder.start();
-        btn.classList.add('bg-red-500', 'animate-pulse');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          
+          let mimeType = 'audio/webm';
+          if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+          else if (MediaRecorder.isTypeSupported('audio/aac')) mimeType = 'audio/aac';
+          else if (MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
+
+          mediaRecorder = new MediaRecorder(stream, { mimeType });
+          audioChunks = [];
+          
+          mediaRecorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) audioChunks.push(e.data);
+          };
+          
+          mediaRecorder.onstop = async () => {
+            const blob = new Blob(audioChunks, { type: mimeType });
+            const ext = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('aac') ? 'aac' : 'webm';
+            const audioRef = storageRef(storage, `voice_girls/${Date.now()}.${ext}`);
+            await uploadBytes(audioRef, blob);
+            const url = await getDownloadURL(audioRef);
+            sendMessage(url);
+            stream.getTracks().forEach(track => track.stop());
+          };
+          
+          mediaRecorder.start();
+          btn.classList.add('bg-red-500', 'animate-pulse');
+        } catch (err) {
+          alert("Microphone غير متاح أو لم يتم السماح بالإذن.");
+        }
       } else {
         mediaRecorder.stop();
         btn.classList.remove('bg-red-500', 'animate-pulse');
@@ -481,7 +497,7 @@
       });
     });
 
-    // --- FIX GALERIE & UPLOAD IMAGE ---
+    // --- GALERIE LISTEN & UPLOAD ---
     document.getElementById('imageUploader').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -517,7 +533,7 @@
       });
     }
 
-    // --- DATES IMPROVED LIST ---
+    // --- DATES ---
     document.getElementById('btnAddDate').addEventListener('click', () => {
       const title = document.getElementById('dateTitle').value.trim();
       const date = document.getElementById('datePicker').value;
@@ -561,7 +577,7 @@
       });
     }
 
-    // --- TODO IMPROVED LIST ---
+    // --- TODOS ---
     document.getElementById('btnAddTodo').addEventListener('click', () => {
       const title = document.getElementById('todoTitle').value.trim();
       if (!title) return;

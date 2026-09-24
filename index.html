@@ -13,25 +13,26 @@
     
     * { -webkit-tap-highlight-color: transparent; }
 
+    /* خلفية هادئة مريحة للعين مخصصة للهواتف */
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at top right, #2a1236, #0f172a 60%, #090d16);
+      background: radial-gradient(circle at 80% 20%, #2e1065 0%, #0f172a 45%, #030712 100%);
       color: #f8fafc;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
     .glass {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     .glass-card {
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .heart-anim {
@@ -363,7 +364,7 @@
       });
     }
 
-    // --- Selection and Delete ---
+    // --- Selection and Delete Messages ---
     window.selectMessage = function(msgKey) {
       if (selectedMsgKey === msgKey) {
         selectedMsgKey = null;
@@ -477,7 +478,7 @@
       });
     }
 
-    // --- FIX VOICE RECORDING ON SAFARI / IOS ---
+    // --- VOICE RECORDING SAFARI/IOS SUPPORT ---
     document.getElementById('recBtn').addEventListener('click', async () => {
       const btn = document.getElementById('recBtn');
       if (!mediaRecorder || mediaRecorder.state === 'inactive') {
@@ -535,7 +536,7 @@
       });
     });
 
-    // --- GALERIE FULL SIZE WITH MODAL ---
+    // --- GALERIE WITH DELETE BUTTON & MODAL ---
     document.getElementById('imageUploader').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -547,6 +548,12 @@
       }
     });
 
+    window.removeGalleryImage = function(key) {
+      if (confirm("Voulez-vous supprimer cette photo ?")) {
+        remove(ref(db, `gallery_girls/${key}`));
+      }
+    };
+
     function listenGallery() {
       onValue(ref(db, 'gallery_girls'), (snapshot) => {
         const grid = document.getElementById('galleryGrid');
@@ -556,10 +563,13 @@
           Object.keys(data).reverse().forEach(key => {
             const item = data[key];
             const imgDiv = document.createElement('div');
-            imgDiv.className = 'relative group rounded-2xl overflow-hidden glass border border-white/15 aspect-square shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer';
+            imgDiv.className = 'relative group rounded-2xl overflow-hidden glass border border-white/15 aspect-square shadow-lg hover:scale-105 transition-all duration-300';
             imgDiv.innerHTML = `
-              <img src="${item.url}" onclick="openImageModal('${item.url}')" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end pointer-events-none">
+              <img src="${item.url}" onclick="openImageModal('${item.url}')" class="w-full h-full object-cover cursor-pointer">
+              <button onclick="removeGalleryImage('${key}')" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-red-400 hover:text-red-300 flex items-center justify-center text-xs border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end pointer-events-none">
                 <span class="text-[10px] text-pink-300 font-semibold">${item.uploader || ''}</span>
               </div>
             `;
@@ -579,7 +589,9 @@
     });
 
     window.removeDate = function(key) {
-      remove(ref(db, `dates_girls/${key}`));
+      if (confirm("Voulez-vous supprimer cette date ?")) {
+        remove(ref(db, `dates_girls/${key}`));
+      }
     };
 
     function listenDates() {
@@ -622,7 +634,9 @@
     });
 
     window.removeTodo = function(key) {
-      remove(ref(db, `todos_girls/${key}`));
+      if (confirm("Voulez-vous supprimer ce projet ?")) {
+        remove(ref(db, `todos_girls/${key}`));
+      }
     };
 
     function listenTodos() {
